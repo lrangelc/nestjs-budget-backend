@@ -1,14 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { ITask, TaskStatus } from './task.model';
 import { v4 as uuid } from 'uuid';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 @Injectable()
 export class TasksService {
   private tasks: ITask[] = [];
 
   getAllTasks(): ITask[] {
     return this.tasks;
+  }
+
+  getTasksWithFilter(filterDto: GetTasksFilterDto): ITask[] {
+    const { status, search } = filterDto;
+
+    let tasks = this.getAllTasks();
+
+    if (status && search) {
+      tasks = tasks.filter((task) => {
+        return (
+          task.status === status &&
+          (task.title.toLowerCase().includes(search.toLowerCase()) ||
+            task.description.toLowerCase().includes(search.toLowerCase()))
+        );
+      });
+      return tasks;
+    }
+
+    if (status) {
+      tasks = tasks.filter((task) => task.status === status);
+    }
+
+    if (search) {
+      tasks = tasks.filter((task) => {
+        return (
+          task.title.toLowerCase().includes(search.toLowerCase()) ||
+          task.description.toLowerCase().includes(search.toLowerCase())
+        );
+      });
+    }
+
+    return tasks;
   }
 
   createTask(createTaskDto: CreateTaskDto): ITask {
@@ -30,20 +63,35 @@ export class TasksService {
     return this.tasks.find((element) => element.id === id);
   }
 
-  updateTask(id: string, updateTaskDto: UpdateTaskDto): ITask {
-    const index = this.tasks.findIndex((element) => element.id === id);
+  updateTaskStatus(id: string, @Body('status') status: TaskStatus) {
+    const task = this.getTaskById(id);
+    if (task) {
+      task.status = status;
+    }
+    return task;
+  }
 
-    let task: ITask = this.tasks[index];
+  updateTask(id: string, updateTaskDto: UpdateTaskDto): ITask {
+    const task = this.getTaskById(id);
+
+    // const index = this.tasks.findIndex((element) => element.id === id);
+
+    // let task: ITask = this.tasks[index];
 
     const { title, description } = updateTaskDto;
+    if (title) {
+      task.title = title;
+    }
+    if (description) {
+      task.description = description;
+    }
+    // task = {
+    //   ...task,
+    //   title,
+    //   description,
+    // };
 
-    task = {
-      ...task,
-      title,
-      description,
-    };
-
-    this.tasks[index] = task;
+    // this.tasks[index] = task;
 
     return task;
   }
