@@ -1,9 +1,10 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ITask, TaskStatus } from './task.model';
 import { v4 as uuid } from 'uuid';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
+import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
 @Injectable()
 export class TasksService {
   private tasks: ITask[] = [];
@@ -60,14 +61,20 @@ export class TasksService {
   }
 
   getTaskById(id: string): ITask {
-    return this.tasks.find((element) => element.id === id);
+    const task = this.tasks.find((element) => element.id === id);
+
+    if (!task) {
+      throw new NotFoundException(`Task with id: ${id} not found.`);
+    }
+
+    return task;
   }
 
-  updateTaskStatus(id: string, @Body('status') status: TaskStatus) {
+  updateTaskStatus(id: string, updateTaskStatusDto: UpdateTaskStatusDto) {
     const task = this.getTaskById(id);
-    if (task) {
-      task.status = status;
-    }
+
+    task.status = updateTaskStatusDto.status;
+
     return task;
   }
 
@@ -97,12 +104,14 @@ export class TasksService {
   }
 
   deleteTask(id: string) {
+    const task = this.getTaskById(id);
+
     const result = {
       success: true,
       message: '',
     };
 
-    const index = this.tasks.findIndex((element) => element.id === id);
+    const index = this.tasks.findIndex((element) => element.id === task.id);
 
     if (index === -1) {
       result.success = false;

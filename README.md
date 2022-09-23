@@ -93,3 +93,29 @@ nest generate service tasks
 
 nest generate service tasks --no-spec
 ```
+
+## Docker
+
+run container:
+
+```
+docker run --name postgres-nest -p 5432:5432 -e POSTGRES_PASSWORD=postgres -d postres
+```
+
+list containers running:
+
+```
+docker container ls
+```
+
+stop container:
+
+```
+docker container stop postgres-nest
+```
+
+delete container:
+
+```
+docker container rm postgres-nest
+```
