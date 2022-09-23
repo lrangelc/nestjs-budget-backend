@@ -6,14 +6,14 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
-import { TasksRepository } from './tasks.repository';
+import { TasksRepositoryService } from './tasks.repository';
 import { Task } from './task.entity';
 
 @Injectable()
 export class TasksService {
   constructor(
-    @Inject(TasksRepository)
-    private readonly tasksRepository: TasksRepository,
+    @Inject(TasksRepositoryService)
+    private readonly tasksRepositoryService: TasksRepositoryService,
   ) {}
   // @InjectRepository(TasksRepository) private tasksRepository: TasksRepository,
 
@@ -53,6 +53,30 @@ export class TasksService {
   //   return tasks;
   // }
 
+  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    const { title, description } = createTaskDto;
+
+    const task = this.tasksRepositoryService.repository.create({
+      title,
+      description,
+      status: TaskStatus.OPEN,
+    });
+
+    await this.tasksRepositoryService.repository.save(task);
+
+    return task;
+
+    // const task: ITask = {
+    //   id: uuid(),
+    //   title,
+    //   description,
+    //   status: TaskStatus.OPEN,
+    // };
+
+    // this.tasks.push(task);
+
+    // return task;
+  }
   // createTask(createTaskDto: CreateTaskDto): ITask {
   //   const { title, description } = createTaskDto;
 
@@ -69,7 +93,9 @@ export class TasksService {
   // }
 
   async getTaskById(id: string): Promise<Task> {
-    const found = await this.tasksRepository.findOne({ where: { id: id } });
+    const found = await this.tasksRepositoryService.findOne({
+      where: { id: id },
+    });
     if (!found) {
       throw new NotFoundException(`Task with ID "${id}" not found`);
     }
