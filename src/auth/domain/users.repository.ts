@@ -7,36 +7,36 @@ import {
   UpdateResult,
 } from 'typeorm';
 
-import { Task } from './task.entity';
-import { TaskStatus } from './task.enums';
+import { User } from './user.entity';
+import { UserStatus } from './user.enums';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Injectable()
-export class TasksRepositoryService {
+export class UsersRepositoryService {
   constructor(private dataSource: DataSource) {}
 
-  public get repository(): Repository<Task> {
-    return this.dataSource.getRepository(Task);
+  public get repository(): Repository<User> {
+    return this.dataSource.getRepository(User);
   }
 
-  findOne(options: FindOneOptions<Task>) {
-    return this.dataSource.getRepository(Task).findOne(options);
+  findOne(options: FindOneOptions<User>) {
+    return this.dataSource.getRepository(User).findOne(options);
   }
 
-  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+  async getTasks(filterDto: GetTasksFilterDto): Promise<User[]> {
     const { status, search } = filterDto;
 
     if (!status && !search) {
-      return this.dataSource.getRepository(Task).createQueryBuilder().getMany();
+      return this.dataSource.getRepository(User).createQueryBuilder().getMany();
     }
 
-    let tasks: Task[];
+    let tasks: User[];
 
     if (status && search) {
       tasks = await this.dataSource
-        .getRepository(Task)
+        .getRepository(User)
         .createQueryBuilder()
         .andWhere('status = :status', { status: status })
         .andWhere(
@@ -52,7 +52,7 @@ export class TasksRepositoryService {
 
     if (status) {
       tasks = await this.dataSource
-        .getRepository(Task)
+        .getRepository(User)
         .createQueryBuilder()
         .andWhere('status = :status', { status: status })
         .getMany();
@@ -60,7 +60,7 @@ export class TasksRepositoryService {
 
     if (search) {
       tasks = await this.dataSource
-        .getRepository(Task)
+        .getRepository(User)
         .createQueryBuilder()
         .andWhere(
           `LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search)`,
@@ -74,16 +74,16 @@ export class TasksRepositoryService {
     return tasks;
   }
 
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(createTaskDto: CreateTaskDto): Promise<User> {
     const { title, description } = createTaskDto;
 
-    const task = this.dataSource.getRepository(Task).create({
+    const task = this.dataSource.getRepository(User).create({
       title,
       description,
-      status: TaskStatus.OPEN,
+      status: UserStatus.ACTIVE,
     });
 
-    await this.dataSource.getRepository(Task).save(task);
+    await this.dataSource.getRepository(User).save(task);
 
     return task;
   }
@@ -96,7 +96,7 @@ export class TasksRepositoryService {
 
     const retult = await this.dataSource
       .createQueryBuilder()
-      .update(Task)
+      .update(User)
       .set({
         ...(title ? { title: title } : {}),
         ...(description ? { description: description } : {}),
@@ -108,7 +108,7 @@ export class TasksRepositoryService {
   }
 
   async deleteTask(id: string): Promise<DeleteResult> {
-    const result = await this.dataSource.getRepository(Task).delete(id);
+    const result = await this.dataSource.getRepository(User).delete(id);
     return result;
   }
 }
