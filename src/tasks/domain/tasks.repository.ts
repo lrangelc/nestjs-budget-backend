@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, FindOneOptions, Repository } from 'typeorm';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { TaskStatus } from './task-status.enum';
 
+import { CreateTaskDto } from './dto/create-task.dto';
+import { TaskStatus } from './task.enums';
 import { Task } from './task.entity';
 
 @Injectable()

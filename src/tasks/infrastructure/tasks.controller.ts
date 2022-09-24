@@ -8,14 +8,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
-import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { TaskStatus } from './task-status.enum';
-import { Task } from './task.entity';
 
-import { TasksService } from './tasks.service';
+import { TasksService } from '../application/tasks.service';
+import { CreateTaskDto } from '../domain/dto/create-task.dto';
+import { Task } from '../domain/task.entity';
+import { GetTasksFilterDto } from '../domain/dto/get-tasks-filter.dto';
+import { UpdateTaskStatusDto } from '../domain/dto/update-task-status.dto';
+import { UpdateTaskDto } from '../domain/dto/update-task.dto';
+import { TaskStatus } from '../domain/task.enums';
 
 @Controller('tasks')
 export class TasksController {
