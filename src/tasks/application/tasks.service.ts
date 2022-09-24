@@ -8,6 +8,7 @@ import { UpdateTaskDto } from '../domain/dto/update-task.dto';
 import { GetTasksFilterDto } from '../domain/dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from '../domain/dto/update-task-status.dto';
 import { TasksRepositoryService } from '../domain/tasks.repository';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class TasksService {
@@ -76,6 +77,21 @@ export class TasksService {
   //   return task;
   // }
 
+  async updateTask(
+    id: string,
+    updateTaskDto: UpdateTaskDto,
+  ): Promise<UpdateResult> {
+    const result = await this.tasksRepositoryService.updateTask(
+      id,
+      updateTaskDto,
+    );
+    console.log(result);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    return result;
+  }
+
   // updateTask(id: string, updateTaskDto: UpdateTaskDto): ITask {
   //   const task = this.getTaskById(id);
 
@@ -101,23 +117,12 @@ export class TasksService {
   //   return task;
   // }
 
-  // deleteTask(id: string) {
-  //   const task = this.getTaskById(id);
-
-  //   const result = {
-  //     success: true,
-  //     message: '',
-  //   };
-
-  //   const index = this.tasks.findIndex((element) => element.id === task.id);
-
-  //   if (index === -1) {
-  //     result.success = false;
-  //     result.message = 'Record not found.';
-  //     return result;
-  //   }
-
-  //   this.tasks = this.tasks.filter((element) => element.id !== id);
-  //   return result;
-  // }
+  async deleteTask(id: string): Promise<DeleteResult> {
+    const result = await this.tasksRepositoryService.deleteTask(id);
+    console.log(result);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    return result;
+  }
 }

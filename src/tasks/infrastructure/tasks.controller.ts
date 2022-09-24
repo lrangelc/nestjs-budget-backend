@@ -16,6 +16,7 @@ import { GetTasksFilterDto } from '../domain/dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from '../domain/dto/update-task-status.dto';
 import { UpdateTaskDto } from '../domain/dto/update-task.dto';
 import { TaskStatus } from '../domain/task.enums';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Controller('tasks')
 export class TasksController {
@@ -40,6 +41,14 @@ export class TasksController {
     return this.tasksService.getTaskById(id);
   }
 
+  @Patch('/:id')
+  updateTask(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<UpdateResult> {
+    return this.tasksService.updateTask(id, updateTaskDto);
+  }
+
   // @Patch('/:id')
   // updateTask(
   //   @Param('id') id: string,
@@ -48,10 +57,10 @@ export class TasksController {
   //   return this.tasksService.updateTask(id, updateTaskDto);
   // }
 
-  // @Delete('/:id')
-  // deleteTask(@Param('id') id: string) {
-  //   return this.tasksService.deleteTask(id);
-  // }
+  @Delete('/:id')
+  deleteTask(@Param('id') id: string): Promise<DeleteResult> {
+    return this.tasksService.deleteTask(id);
+  }
 
   // @Patch('/:id/status')
   // updateTaskStatus(
