@@ -11,6 +11,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskStatus } from './task.enums';
 import { Task } from './task.entity';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Injectable()
 export class TasksRepositoryService {
@@ -22,6 +23,55 @@ export class TasksRepositoryService {
 
   findOne(options: FindOneOptions<Task>) {
     return this.dataSource.getRepository(Task).findOne(options);
+  }
+
+  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    const { status, search } = filterDto;
+
+    if (!status && !search) {
+      return this.dataSource.getRepository(Task).createQueryBuilder().getMany();
+    }
+
+    let tasks: Task[];
+
+    if (status && search) {
+      tasks = await this.dataSource
+        .getRepository(Task)
+        .createQueryBuilder()
+        .andWhere('status = :status', { status: status })
+        .andWhere(
+          `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
+          {
+            search: `%${search}%`,
+          },
+        )
+        .getMany();
+
+      return tasks;
+    }
+
+    if (status) {
+      tasks = await this.dataSource
+        .getRepository(Task)
+        .createQueryBuilder()
+        .andWhere('status = :status', { status: status })
+        .getMany();
+    }
+
+    if (search) {
+      tasks = await this.dataSource
+        .getRepository(Task)
+        .createQueryBuilder()
+        .andWhere(
+          `LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search)`,
+          {
+            search: `%${search}%`,
+          },
+        )
+        .getMany();
+    }
+
+    return tasks;
   }
 
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {

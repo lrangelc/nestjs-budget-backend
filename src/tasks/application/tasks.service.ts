@@ -1,12 +1,10 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
-import { TasksRepositoryService } from '../domain/tasks.repository';
 import { Task } from '../domain/task.entity';
+import { TasksRepositoryService } from '../domain/tasks.repository';
 import { CreateTaskDto } from '../domain/dto/create-task.dto';
 import { UpdateTaskDto } from '../domain/dto/update-task.dto';
-import { TaskStatus } from '../domain/task.enums';
 import { GetTasksFilterDto } from '../domain/dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from '../domain/dto/update-task-status.dto';
 
@@ -16,14 +14,9 @@ export class TasksService {
     @Inject(TasksRepositoryService)
     private readonly tasksRepositoryService: TasksRepositoryService,
   ) {}
-  // @InjectRepository(TasksRepository) private tasksRepository: TasksRepository,
 
-  // getAllTasks(): ITask[] {
-  //   return this.tasks;
-  // }
-
-  createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.tasksRepositoryService.createTask(createTaskDto);
+  getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    return this.tasksRepositoryService.getTasks(filterDto);
   }
 
   async getTaskById(id: string): Promise<Task> {
@@ -35,6 +28,10 @@ export class TasksService {
     }
 
     return found;
+  }
+
+  createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    return this.tasksRepositoryService.createTask(createTaskDto);
   }
 
   async updateTask(
@@ -73,36 +70,4 @@ export class TasksService {
 
     return task;
   }
-
-  // getTasksWithFilter(filterDto: GetTasksFilterDto): ITask[] {
-  //   const { status, search } = filterDto;
-
-  //   let tasks = this.getAllTasks();
-
-  //   if (status && search) {
-  //     tasks = tasks.filter((task) => {
-  //       return (
-  //         task.status === status &&
-  //         (task.title.toLowerCase().includes(search.toLowerCase()) ||
-  //           task.description.toLowerCase().includes(search.toLowerCase()))
-  //       );
-  //     });
-  //     return tasks;
-  //   }
-
-  //   if (status) {
-  //     tasks = tasks.filter((task) => task.status === status);
-  //   }
-
-  //   if (search) {
-  //     tasks = tasks.filter((task) => {
-  //       return (
-  //         task.title.toLowerCase().includes(search.toLowerCase()) ||
-  //         task.description.toLowerCase().includes(search.toLowerCase())
-  //       );
-  //     });
-  //   }
-
-  //   return tasks;
-  // }
 }

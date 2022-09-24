@@ -8,28 +8,23 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { TasksService } from '../application/tasks.service';
-import { CreateTaskDto } from '../domain/dto/create-task.dto';
 import { Task } from '../domain/task.entity';
+import { CreateTaskDto } from '../domain/dto/create-task.dto';
 import { GetTasksFilterDto } from '../domain/dto/get-tasks-filter.dto';
-import { UpdateTaskStatusDto } from '../domain/dto/update-task-status.dto';
 import { UpdateTaskDto } from '../domain/dto/update-task.dto';
-import { TaskStatus } from '../domain/task.enums';
-import { DeleteResult, UpdateResult } from 'typeorm';
+import { UpdateTaskStatusDto } from '../domain/dto/update-task-status.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
-  // @Get()
-  // getAllTasks(@Query() filterDto: GetTasksFilterDto): ITask[] {
-  //   if (Object.keys(filterDto).length) {
-  //     return this.tasksService.getTasksWithFilter(filterDto);
-  //   } else {
-  //     return this.tasksService.getAllTasks();
-  //   }
-  // }
+  @Get()
+  getTasks(@Query() filterDto: GetTasksFilterDto): Promise<Task[]> {
+    return this.tasksService.getTasks(filterDto);
+  }
 
   @Get('/:id')
   getTaskById(@Param('id') id: string): Promise<Task> {
