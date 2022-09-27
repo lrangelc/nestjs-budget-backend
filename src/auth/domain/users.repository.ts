@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import {
   DataSource,
   DeleteResult,
@@ -83,7 +83,16 @@ export class UsersRepositoryService {
       status: UserStatus.ACTIVE,
     });
 
-    await this.dataSource.getRepository(User).save(user);
+    try {
+      await this.dataSource.getRepository(User).save(user);
+    } catch (err) {
+      if (err.code === '23505') {
+        // duplicate username
+        throw new ConflictException(`Username already exists`);
+      } else{
+        throw new InternalServerErrorException();
+      }
+    }
 
     return user;
   }
