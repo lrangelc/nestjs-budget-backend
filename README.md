@@ -119,3 +119,7 @@ delete container:
 ```
 docker container rm postgres-nest
 ```
+
+## Course
+
+https://github.com/arielweinberger/nestjs-course-task-management
