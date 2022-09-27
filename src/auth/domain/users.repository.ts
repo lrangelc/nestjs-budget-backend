@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import {
   DataSource,
   DeleteResult,
@@ -6,6 +10,7 @@ import {
   Repository,
   UpdateResult,
 } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { User } from './user.entity';
 import { UserStatus } from './user.enums';
@@ -77,9 +82,13 @@ export class UsersRepositoryService {
   async createUser(createUserDto: AuthCredentialsDto): Promise<User> {
     const { username, password } = createUserDto;
 
+    // hash
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const user = this.dataSource.getRepository(User).create({
       username,
-      password,
+      password: hashedPassword,
       status: UserStatus.ACTIVE,
     });
 
@@ -89,7 +98,7 @@ export class UsersRepositoryService {
       if (err.code === '23505') {
         // duplicate username
         throw new ConflictException(`Username already exists`);
-      } else{
+      } else {
         throw new InternalServerErrorException();
       }
     }
