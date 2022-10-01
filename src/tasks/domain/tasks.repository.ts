@@ -26,11 +26,15 @@ export class TasksRepositoryService {
     return this.dataSource.getRepository(Task).findOne(options);
   }
 
-  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+  async getTasks(user: User, filterDto: GetTasksFilterDto): Promise<Task[]> {
     const { status, search } = filterDto;
 
     if (!status && !search) {
-      return this.dataSource.getRepository(Task).createQueryBuilder().getMany();
+      return this.dataSource
+        .getRepository(Task)
+        .createQueryBuilder()
+        .where({ user })
+        .getMany();
     }
 
     let tasks: Task[];
@@ -39,6 +43,7 @@ export class TasksRepositoryService {
       tasks = await this.dataSource
         .getRepository(Task)
         .createQueryBuilder()
+        .where({ user })
         .andWhere('status = :status', { status: status })
         .andWhere(
           `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
@@ -55,6 +60,7 @@ export class TasksRepositoryService {
       tasks = await this.dataSource
         .getRepository(Task)
         .createQueryBuilder()
+        .where({ user })
         .andWhere('status = :status', { status: status })
         .getMany();
     }
@@ -63,6 +69,7 @@ export class TasksRepositoryService {
       tasks = await this.dataSource
         .getRepository(Task)
         .createQueryBuilder()
+        .where({ user })
         .andWhere(
           `LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search)`,
           {

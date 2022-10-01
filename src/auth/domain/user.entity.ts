@@ -18,6 +18,7 @@ export class User {
   @Column()
   status: UserStatus;
 
-  @OneToMany((_type) => Task, (task) => task.user, { eager: true })
+  // @OneToMany((_type) => Task, (task) => task.user, { eager: true })
+  @OneToMany((_type) => Task, (task) => task.user, { eager: false })
   tasks: Task[];
 }
