@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
+import { Task } from 'src/tasks/domain/task.entity';
 
 import { UserStatus } from './user.enums';
 
@@ -15,4 +17,7 @@ export class User {
 
   @Column()
   status: UserStatus;
+
+  @OneToMany((_type) => Task, (task) => task.user, { eager: true })
+  tasks: Task[];
 }

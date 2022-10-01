@@ -1,13 +1,15 @@
+/* eslint-disable hexagonal-architecture/enforce */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Task } from './domain/task.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { TasksController } from './infrastructure/tasks.controller';
 import { TasksService } from './application/tasks.service';
 import { TasksRepositoryService } from './domain/tasks.repository';
-import { TasksController } from './infrastructure/tasks.controller';
+import { Task } from './domain/task.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task])],
+  imports: [TypeOrmModule.forFeature([Task]), AuthModule],
   providers: [TasksService, TasksRepositoryService],
   controllers: [TasksController],
 })
