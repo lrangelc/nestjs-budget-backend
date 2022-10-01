@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import {
   DataSource,
   DeleteResult,
@@ -16,6 +20,8 @@ import { User } from 'src/auth/domain/user.entity';
 
 @Injectable()
 export class TasksRepositoryService {
+  private logger = new Logger('TasksRepositoryService');
+
   constructor(private dataSource: DataSource) {}
 
   public get repository(): Repository<Task> {
@@ -27,59 +33,69 @@ export class TasksRepositoryService {
   }
 
   async getTasks(user: User, filterDto: GetTasksFilterDto): Promise<Task[]> {
-    const { status, search } = filterDto;
+    try {
+      const { status, search } = filterDto;
 
-    if (!status && !search) {
-      return this.dataSource
-        .getRepository(Task)
-        .createQueryBuilder()
-        .where({ user })
-        .getMany();
-    }
+      if (!status && !search) {
+        return this.dataSource
+          .getRepository(Task)
+          .createQueryBuilder()
+          .where({ user })
+          .getMany();
+      }
 
-    let tasks: Task[];
+      let tasks: Task[];
 
-    if (status && search) {
-      tasks = await this.dataSource
-        .getRepository(Task)
-        .createQueryBuilder()
-        .where({ user })
-        .andWhere('status = :status', { status: status })
-        .andWhere(
-          `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
-          {
-            search: `%${search}%`,
-          },
-        )
-        .getMany();
+      if (status && search) {
+        tasks = await this.dataSource
+          .getRepository(Task)
+          .createQueryBuilder()
+          .where({ user })
+          .andWhere('status = :status', { status: status })
+          .andWhere(
+            `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
+            {
+              search: `%${search}%`,
+            },
+          )
+          .getMany();
+
+        return tasks;
+      }
+
+      if (status) {
+        tasks = await this.dataSource
+          .getRepository(Task)
+          .createQueryBuilder()
+          .where({ user })
+          .andWhere('status = :status', { status: status })
+          .getMany();
+      }
+
+      if (search) {
+        tasks = await this.dataSource
+          .getRepository(Task)
+          .createQueryBuilder()
+          .where({ user })
+          .andWhere(
+            `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
+            {
+              search: `%${search}%`,
+            },
+          )
+          .getMany();
+      }
 
       return tasks;
+    } catch (err) {
+      this.logger.error(
+        `Failed to get tasks for user "${
+          user.username
+        }". Filters: ${JSON.stringify(filterDto)}`,
+        err,
+      );
+      throw new InternalServerErrorException();
     }
-
-    if (status) {
-      tasks = await this.dataSource
-        .getRepository(Task)
-        .createQueryBuilder()
-        .where({ user })
-        .andWhere('status = :status', { status: status })
-        .getMany();
-    }
-
-    if (search) {
-      tasks = await this.dataSource
-        .getRepository(Task)
-        .createQueryBuilder()
-        .where({ user })
-        .andWhere(
-          `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
-          {
-            search: `%${search}%`,
-          },
-        )
-        .getMany();
-    }
-
-    return tasks;
   }
 
   async createTask(user: User, createTaskDto: CreateTaskDto): Promise<Task> {

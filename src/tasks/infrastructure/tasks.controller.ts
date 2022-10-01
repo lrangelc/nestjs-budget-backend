@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
@@ -24,6 +25,8 @@ import { User } from 'src/auth/domain/user.entity';
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
+  private logger = new Logger('TasksController');
+
   constructor(private tasksService: TasksService) {}
 
   @Get()
@@ -31,6 +34,11 @@ export class TasksController {
     @GetUser() user: User,
     @Query() filterDto: GetTasksFilterDto,
   ): Promise<Task[]> {
+    this.logger.verbose(
+      `User "${user.username}" retrieving all tasks. Filters: ${JSON.stringify(
+        filterDto,
+      )}`,
+    );
     return this.tasksService.getTasks(user, filterDto);
   }
 
@@ -44,6 +52,11 @@ export class TasksController {
     @GetUser() user: User,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<Task> {
+    this.logger.verbose(
+      `User "${user.username}" creating a new task. Data: ${JSON.stringify(
+        createTaskDto,
+      )}`,
+    );
     return this.tasksService.createTask(user, createTaskDto);
   }
 
@@ -53,6 +66,11 @@ export class TasksController {
     @Param('id') id: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<UpdateResult> {
+    this.logger.verbose(
+      `User "${
+        user.username
+      }" updating task. id: "${id}" Data: ${JSON.stringify(updateTaskDto)}`,
+    );
     return this.tasksService.updateTask(user, id, updateTaskDto);
   }
 
@@ -61,6 +79,7 @@ export class TasksController {
     @GetUser() user: User,
     @Param('id') id: string,
   ): Promise<DeleteResult> {
+    this.logger.verbose(`User "${user.username}" deleting task. id: "${id}"`);
     return this.tasksService.deleteTask(user, id);
   }
 
@@ -70,6 +89,13 @@ export class TasksController {
     @Param('id') id: string,
     @Body() updateTaskStatusDto: UpdateTaskStatusDto,
   ): Promise<Task> {
+    this.logger.verbose(
+      `User "${
+        user.username
+      }" updating status task. id: "${id}" Data: ${JSON.stringify(
+        updateTaskStatusDto,
+      )}`,
+    );
     return this.tasksService.updateTaskStatus(user, id, updateTaskStatusDto);
   }
 }
