@@ -20,9 +20,9 @@ export class TasksService {
     return this.tasksRepositoryService.getTasks(user, filterDto);
   }
 
-  async getTaskById(id: string): Promise<Task> {
+  async getTaskById(user: User, id: string): Promise<Task> {
     const found = await this.tasksRepositoryService.findOne({
-      where: { id: id },
+      where: { id, user },
     });
     if (!found) {
       throw new NotFoundException(`Task with ID "${id}" not found`);
@@ -36,10 +36,12 @@ export class TasksService {
   }
 
   async updateTask(
+    user: User,
     id: string,
     updateTaskDto: UpdateTaskDto,
   ): Promise<UpdateResult> {
     const result = await this.tasksRepositoryService.updateTask(
+      user,
       id,
       updateTaskDto,
     );
@@ -50,8 +52,8 @@ export class TasksService {
     return result;
   }
 
-  async deleteTask(id: string): Promise<DeleteResult> {
-    const result = await this.tasksRepositoryService.deleteTask(id);
+  async deleteTask(user: User, id: string): Promise<DeleteResult> {
+    const result = await this.tasksRepositoryService.deleteTask(user, id);
     console.log(result);
     if (result.affected === 0) {
       throw new NotFoundException(`Task with ID "${id}" not found`);
@@ -60,10 +62,11 @@ export class TasksService {
   }
 
   async updateTaskStatus(
+    user: User,
     id: string,
     updateTaskStatusDto: UpdateTaskStatusDto,
   ): Promise<Task> {
-    const task = await this.getTaskById(id);
+    const task = await this.getTaskById(user, id);
 
     task.status = updateTaskStatusDto.status;
 

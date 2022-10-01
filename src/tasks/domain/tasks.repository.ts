@@ -71,7 +71,7 @@ export class TasksRepositoryService {
         .createQueryBuilder()
         .where({ user })
         .andWhere(
-          `LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search)`,
+          `(LOWER(title) LIKE LOWER(:search) OR LOWER(description) LIKE LOWER(:search))`,
           {
             search: `%${search}%`,
           },
@@ -98,6 +98,7 @@ export class TasksRepositoryService {
   }
 
   async updateTask(
+    user: User,
     id: string,
     updateTaskDto: UpdateTaskDto,
   ): Promise<UpdateResult> {
@@ -110,14 +111,17 @@ export class TasksRepositoryService {
         ...(title ? { title: title } : {}),
         ...(description ? { description: description } : {}),
       })
-      .where('id = :id', { id: id })
+      .where('userId = :userId', { userId: user.id })
+      .andWhere('id = :id', { id: id })
       .execute();
 
     return retult;
   }
 
-  async deleteTask(id: string): Promise<DeleteResult> {
-    const result = await this.dataSource.getRepository(Task).delete(id);
+  async deleteTask(user: User, id: string): Promise<DeleteResult> {
+    const result = await this.dataSource
+      .getRepository(Task)
+      .delete({ id, user });
     return result;
   }
 }
