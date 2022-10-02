@@ -133,3 +133,7 @@ git push -f heroku HEAD:master
 ``` bash
 heroku config:set STAGE=prod
 ```
+
+``` bash
+heroku logs --tail
+```
