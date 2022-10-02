@@ -127,5 +127,9 @@ https://github.com/arielweinberger/nestjs-course-task-management
 ## deploy to heroku
 
 ``` bash
+git push -f heroku HEAD:master
+```
+
+``` bash
 heroku config:set STAGE=prod
 ```
