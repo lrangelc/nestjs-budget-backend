@@ -13,17 +13,6 @@ import { configValidationSchema } from './config.schema';
       envFilePath: [`.env.stage.${process.env.STAGE}`],
       validationSchema: configValidationSchema,
     }),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   autoLoadEntities: true,
-    //   synchronize: true,
-
-    //   host: 'localhost',
-    //   port: 5432,
-    //   username: 'postgres',
-    //   password: 'postres',
-    //   database: 'task-management',
-    // }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
